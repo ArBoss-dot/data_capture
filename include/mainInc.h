@@ -17,20 +17,20 @@
 #include "driver/gpio.h"
 #include "nvs_flash.h"
 
-// typedef struct{
-//     uint16_t                gridV;
-//     uint16_t                gridI;
-//     uint16_t                homeV;
-//     uint16_t                homeI;  
-//     uint16_t                rePvV;
-//     uint16_t                rePvI;   
-//     uint16_t                battV;
-//     uint16_t                battI;
-//     uint32_t                gridP;
-//     uint32_t                homeP;
-//     uint32_t                rePvP;
-//     uint32_t                battP;
-// }cnsmpData;
+typedef struct{
+    uint16_t                gridV;
+    double                  gridI;
+    uint16_t                homeV;
+    double                  homeI;  
+    uint16_t                rePvV;
+    double                  rePvI;   
+    uint16_t                battV;
+    double                  battI;
+    float                   gridP;
+    float                   homeP;
+    float                   rePvP;
+    float                   battP;
+}cnsmpData;
 
 
 #endif
