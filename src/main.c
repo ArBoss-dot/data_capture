@@ -25,8 +25,23 @@
 #define TXD_PIN             GPIO_NUM_17
 #define RXD_PIN             GPIO_NUM_16
 static const char *TAGMAIN  = "main_app : ";
-// static const double vref    = 3.53*220;
-// static const double vRatio       = 0.2;
+static const double vref    = 3.53*220;
+static const double vRatio  = 0.2;
+static char* stringData;
+   cnsmpData data = {
+        .gridV = 0,
+        .gridI = 0,
+        .homeV = 0,
+        .homeI = 0,
+        .rePvV = 0,
+        .rePvI = 0,
+        .battV = 0,
+        .battI = 0,
+        .gridP = 0,
+        .homeP = 0,
+        .rePvP = 0,
+        .battP = 0,
+    };
 typedef enum{
     DEFAULT =0,
     SHORT_A0,
@@ -69,49 +84,8 @@ esp_err_t get_voltage(uint8_t *data, INA_ADDRESS address){
         i2c_master_write_byte(cmd,(INA_BRIDGE_A0<<1) | I2C_MASTER_READ,1); // specify address and read command
         break;
 
-    case SHORT_A1:ESP_LOGI(TAGMAIN,"Start to measure parameters");
-        // static double vMax = 0;
-        // vTaskDelay(pdMS_TO_TICKS(10));
-        // ads1115_set_mux(&configV,ADS1115_MUX_0_GND);
-        // for(int itter=0;itter<80;itter++){
-        //     double rawVolt = ads1115_get_voltage(&configV);
-        //     vMax = vMax<rawVolt?rawVolt:vMax;
-        // }
-        // if(vMax>2.7 && vMax < 3.9){
-        //     ESP_LOGI(TAGMAIN,"AC Grid voltage measure is %f",vref/vMax);
-        // }
-        // vMax = 0;
-        // vTaskDelay(pdMS_TO_TICKS(10));
-        // ads1115_set_mux(&configV,ADS1115_MUX_1_GND);
-        // for(int itter=0;itter<80;itter++){
-        //     double rawVolt = ads1115_get_voltage(&configV);
-        //     vMax = vMax<rawVolt?rawVolt:vMax;
-        // }
-        // if(vMax>2.7 && vMax < 3.9){
-        //     ESP_LOGI(TAGMAIN,"AC Home voltage measure is %f",vref/vMax);
-        // }
-        // vMax = 0;
-        // vTaskDelay(pdMS_TO_TICKS(10));
-        // ads1115_set_mux(&configV,ADS1115_MUX_2_GND);
-        // for(int itter=0;itter<80;itter++){
-        //     double rawVolt = ads1115_get_voltage(&configV);
-        //     vMax = vMax<rawVolt?rawVolt:vMax;
-        // }
-        // if(vMax>0.15 && vMax < 5){
-        //     ESP_LOGI(TAGMAIN,"DC Solar PV voltage measured is = %f",vMax/vRatio);
-        // }
-        
-        // vMax = 0;
-        // vTaskDelay(pdMS_TO_TICKS(10));
-        // ads1115_set_mux(&configV,ADS1115_MUX_3_GND);
-        // for(int itter=0;itter<80;itter++){
-        //     double rawVolt = ads1115_get_voltage(&configV);
-        //     vMax = vMax<rawVolt?rawVolt:vMax;
-        // }
-        // if(vMax>0.15 && vMax < 5){
-        //     ESP_LOGI(TAGMAIN,"DC Battery voltage measured is = %f",vMax/vRatio);
-        // }
-        
+    case SHORT_A1:
+        ESP_LOGI(TAGMAIN,"Start to measure parameters");    
         i2c_master_write_byte(cmd,(INA_BRIDGE_A1<<1) | I2C_MASTER_READ,1); // specify address and read command
         break;
 
@@ -129,20 +103,7 @@ esp_err_t get_voltage(uint8_t *data, INA_ADDRESS address){
 
 
 void data_capture_task(void* pvParameter){
-    cnsmpData data = {
-        .gridV = 0,
-        .gridI = 0,
-        .homeV = 0,
-        .homeI = 0,
-        .rePvV = 0,
-        .rePvI = 0,
-        .battV = 0,
-        .battI = 0,
-        .gridP = 0,
-        .homeP = 0,
-        .rePvP = 0,
-        .battP = 0,
-    };
+ 
     init_i2c();
     vTaskDelay(pdMS_TO_TICKS(1000));
     ESP_LOGI(TAGMAIN,"int task loop");
@@ -152,48 +113,53 @@ void data_capture_task(void* pvParameter){
     ads1115_set_mode(&configV,ADS1115_MODE_CONTINUOUS);
     ads1115_set_sps(&configV,ADS1115_SPS_475);
     while(true){
-        // ESP_LOGI(TAGMAIN,"Start to measure parameters");
-        // static double vMax = 0;
-        // vTaskDelay(pdMS_TO_TICKS(10));
-        // ads1115_set_mux(&configV,ADS1115_MUX_0_GND);
-        // for(int itter=0;itter<80;itter++){
-        //     double rawVolt = ads1115_get_voltage(&configV);
-        //     vMax = vMax<rawVolt?rawVolt:vMax;
-        // }
-        // if(vMax>2.7 && vMax < 3.9){
-        //     ESP_LOGI(TAGMAIN,"AC Grid voltage measure is %f",vref/vMax);
-        // }
-        // vMax = 0;
-        // vTaskDelay(pdMS_TO_TICKS(10));
-        // ads1115_set_mux(&configV,ADS1115_MUX_1_GND);
-        // for(int itter=0;itter<80;itter++){
-        //     double rawVolt = ads1115_get_voltage(&configV);
-        //     vMax = vMax<rawVolt?rawVolt:vMax;
-        // }
-        // if(vMax>2.7 && vMax < 3.9){
-        //     ESP_LOGI(TAGMAIN,"AC Home voltage measure is %f",vref/vMax);
-        // }
-        // vMax = 0;
-        // vTaskDelay(pdMS_TO_TICKS(10));
-        // ads1115_set_mux(&configV,ADS1115_MUX_2_GND);
-        // for(int itter=0;itter<80;itter++){
-        //     double rawVolt = ads1115_get_voltage(&configV);
-        //     vMax = vMax<rawVolt?rawVolt:vMax;
-        // }
-        // if(vMax>0.15 && vMax < 5){
-        //     ESP_LOGI(TAGMAIN,"DC Solar PV voltage measured is = %f",vMax/vRatio);
-        // }
+        ESP_LOGI(TAGMAIN,"Start to measure parameters");
+        static double vMax = 0;
         
-        // vMax = 0;
-        // vTaskDelay(pdMS_TO_TICKS(10));
-        // ads1115_set_mux(&configV,ADS1115_MUX_3_GND);
-        // for(int itter=0;itter<80;itter++){
-        //     double rawVolt = ads1115_get_voltage(&configV);
-        //     vMax = vMax<rawVolt?rawVolt:vMax;
-        // }
-        // if(vMax>0.15 && vMax < 5){
-        //     ESP_LOGI(TAGMAIN,"DC Battery voltage measured is = %f",vMax/vRatio);
-        // }
+        vTaskDelay(pdMS_TO_TICKS(10));
+        ads1115_set_mux(&configV,ADS1115_MUX_0_GND);
+        for(int itter=0;itter<80;itter++){
+            double rawVolt = ads1115_get_voltage(&configV);
+            vMax = vMax<rawVolt?rawVolt:vMax;
+        }
+        if(vMax>2.7 && vMax < 3.9){
+            ESP_LOGI(TAGMAIN,"AC Grid voltage measure is %f",vref/vMax);
+            data.gridV = vref/vMax;
+        }
+        vMax = 0;
+        vTaskDelay(pdMS_TO_TICKS(10));
+        ads1115_set_mux(&configV,ADS1115_MUX_1_GND);
+        for(int itter=0;itter<80;itter++){
+            double rawVolt = ads1115_get_voltage(&configV);
+            vMax = vMax<rawVolt?rawVolt:vMax;
+        }
+        if(vMax>2.7 && vMax < 3.9){
+            ESP_LOGI(TAGMAIN,"AC Home voltage measure is %f",vref/vMax);
+            data.homeV = vref/vMax;
+        }
+        vMax = 0;
+        vTaskDelay(pdMS_TO_TICKS(10));
+        ads1115_set_mux(&configV,ADS1115_MUX_2_GND);
+        for(int itter=0;itter<80;itter++){
+            double rawVolt = ads1115_get_voltage(&configV);
+            vMax = vMax<rawVolt?rawVolt:vMax;
+        }
+        if(vMax>0.15 && vMax < 5){
+            ESP_LOGI(TAGMAIN,"DC Solar PV voltage measured is = %f",vMax/vRatio);
+            data.rePvV = vMax/vRatio;
+        }
+        
+        vMax = 0;
+        vTaskDelay(pdMS_TO_TICKS(10));
+        ads1115_set_mux(&configV,ADS1115_MUX_3_GND);
+        for(int itter=0;itter<80;itter++){
+            double rawVolt = ads1115_get_voltage(&configV);
+            vMax = vMax<rawVolt?rawVolt:vMax;
+        }
+        if(vMax>0.15 && vMax < 5){
+            ESP_LOGI(TAGMAIN,"DC Battery voltage measured is = %f",vMax/vRatio);
+            data.battV = vMax/vRatio;
+        }
         
         vTaskDelay(pdMS_TO_TICKS(300));
         u_int8_t    data[2];
@@ -229,9 +195,11 @@ void init_uart(){
 }
 
 void data_send_timer_fun(xTimerHandle timerX){
-    const char* data= "HELLO World how is the josh wahhhh \n";
-    const int len = strlen(data);
-    const int txBytes = uart_write_bytes(UART_NUM_2, data, len);
+    stringData = (char) malloc(30*sizeof('a'));
+    sprintf(stringData,"%d,%d,%d,%d,%f,%f,%f,%f,%f,%f,%f,%f",data.gridV,data.homeV,data.rePvV,data.battV,data.gridI,data.homeI,data.rePvI,data.battI,data.gridP,data.homeP,data.rePvP,data.battP);
+    const char* data_to_send =stringData;
+    const int len = strlen(data_to_send);
+    const int txBytes = uart_write_bytes(UART_NUM_2, data_to_send, len);
     ESP_LOGI(TAGMAIN, "Wrote %d bytes", txBytes);
 }
 
@@ -277,13 +245,13 @@ void app_main() {
         ESP_LOGE(TAGMAIN,"Not able to create task to read sensor Data! :(");
     }
 
-    // sendDataTimer = xTimerCreate("data send timer",pdMS_TO_TICKS(45000),pdTRUE,1,data_send_timer_fun);
-    // if(sendDataTimer != NULL){
-    //     if(xTimerStart(sendDataTimer,pdMS_TO_TICKS(20000)) != pdPASS){
-    //         ESP_LOGE(TAGMAIN," Not able to start the send data timer :) ");
-    //     }
-    //     else{
-    //         ESP_LOGI(TAGMAIN," Timer Started...! :)");
-    //     }
-    // }
+    sendDataTimer = xTimerCreate("data send timer",pdMS_TO_TICKS(45000),pdTRUE,1,data_send_timer_fun);
+    if(sendDataTimer != NULL){
+        if(xTimerStart(sendDataTimer,pdMS_TO_TICKS(20000)) != pdPASS){
+            ESP_LOGE(TAGMAIN," Not able to start the send data timer :) ");
+        }
+        else{
+            ESP_LOGI(TAGMAIN," Timer Started...! :)");
+        }
+    }
 }
